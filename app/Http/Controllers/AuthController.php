@@ -10,7 +10,6 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
-    // Método para registrar um novo usuário
     public function register(Request $request)
     {
         $validatedData = $request->validate([
@@ -30,7 +29,6 @@ class AuthController extends Controller
         return response()->json(['token' => $token], 201);
     }
 
-    // Método para fazer login
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -39,7 +37,6 @@ class AuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        // Log the token for debugging purposes
         \Log::info('Generated token: ' . $token);
 
         return response()->json(['token' => $token]);
