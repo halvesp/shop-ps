@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\FakeStoreService;
+use League\Csv\Reader;
+use League\Csv\Writer;
+use SplTempFileObject;
+use App\Models\Product;
 
 class ProductController extends Controller
 {
@@ -42,4 +46,49 @@ class ProductController extends Controller
         $products = $this->fakeStoreService->getProducts();
         return response()->json($products);
     }
+
+    public function importProducts()
+    {
+        $products = $this->fakeStoreService->importProductsFromFakeAPI();
+        return response()->json(['products' => $products]);
+    }
+
+    public function exportProducts()
+    {
+        $products = $this->fakeStoreService->getProducts();
+
+        $csv = Writer::createFromFileObject(new SplTempFileObject());
+        $csv->insertOne(['ID', 'Title', 'Description', 'Price', 'Category', 'Image']);
+        
+        foreach ($products as $product) {
+            $csv->insertOne([$product['id'], $product['title'], $product['description'], $product['price'], $product['category'], $product['image']]);
+        }
+
+        return response((string) $csv, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="products.csv"',
+        ]);
+    }
+
+    public function importCsv(Request $request)
+    {
+        $file = $request->file('file');
+        $csv = Reader::createFromPath($file->getRealPath(), 'r');
+        $csv->setHeaderOffset(0);
+        
+        $records = $csv->getRecords();
+
+        foreach ($records as $record) {
+            Product::create([
+                'title' => $record['Title'],
+                'description' => $record['Description'],
+                'price' => $record['Price'],
+                'category' => $record['Category'],
+                'image' => $record['Image']
+            ]);
+        }
+
+        return response()->json(['message' => 'Products imported successfully']);
+    }
+
 }
