@@ -59,15 +59,32 @@ class ProductController extends Controller
         return response()->json(['products' => $products]);
     }
 
+    // public function exportProducts()
+    // {
+    //     $products = $this->fakeStoreService->getProducts();
+
+    //     $csv = Writer::createFromFileObject(new SplTempFileObject());
+    //     $csv->insertOne(['ID', 'Title', 'Description', 'Price', 'Category', 'Image']);
+        
+    //     foreach ($products as $product) {
+    //         $csv->insertOne([$product['id'], $product['title'], $product['description'], $product['price'], $product['category'], $product['image']]);
+    //     }
+
+    //     return response((string) $csv, 200, [
+    //         'Content-Type' => 'text/csv',
+    //         'Content-Disposition' => 'attachment; filename="products.csv"',
+    //     ]);
+    // }
+    
     public function exportProducts()
     {
-        $products = $this->fakeStoreService->getProducts();
+        $products = Product::all();
 
         $csv = Writer::createFromFileObject(new SplTempFileObject());
         $csv->insertOne(['ID', 'Title', 'Description', 'Price', 'Category', 'Image']);
-        
+
         foreach ($products as $product) {
-            $csv->insertOne([$product['id'], $product['title'], $product['description'], $product['price'], $product['category'], $product['image']]);
+            $csv->insertOne([$product->id, $product->title, $product->description, $product->price, $product->category, $product->image]);
         }
 
         return response((string) $csv, 200, [
@@ -75,6 +92,7 @@ class ProductController extends Controller
             'Content-Disposition' => 'attachment; filename="products.csv"',
         ]);
     }
+
 
     public function importCsv(Request $request)
     {
