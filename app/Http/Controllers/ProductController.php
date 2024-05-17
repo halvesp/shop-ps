@@ -41,9 +41,15 @@ class ProductController extends Controller
         return response()->json($result);
     }
 
+    // public function index()
+    // {
+    //     $products = $this->fakeStoreService->getProducts();
+    //     return response()->json($products);
+    // }
+    
     public function index()
     {
-        $products = $this->fakeStoreService->getProducts();
+        $products = Product::all();
         return response()->json($products);
     }
 
@@ -75,7 +81,7 @@ class ProductController extends Controller
         $file = $request->file('file');
         $csv = Reader::createFromPath($file->getRealPath(), 'r');
         $csv->setHeaderOffset(0);
-        
+
         $records = $csv->getRecords();
 
         foreach ($records as $record) {
