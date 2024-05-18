@@ -47,10 +47,21 @@ class ProductController extends Controller
     //     return response()->json($products);
     // }
     
-    public function index()
+    // public function index()
+    // {
+    //     $products = Product::all();
+    //     return response()->json($products);
+    // }
+
+    public function index(Request $request)
     {
-        $products = Product::all();
-        return response()->json($products);
+        $limit = $request->get('limit', 20); 
+        $products = Product::paginate($limit);
+
+        return response()->json([
+            'products' => $products->items(),
+            'totalPages' => $products->lastPage(),
+        ]);
     }
 
     public function importProducts()
