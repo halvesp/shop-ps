@@ -56,8 +56,9 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $limit = $request->get('limit', 20); 
-        $products = Product::paginate($limit);
-
+        // $products = Product::paginate($limit);
+        $products = Product::orderBy('created_at', 'desc')->paginate($limit);
+        
         return response()->json([
             'products' => $products->items(),
             'totalPages' => $products->lastPage(),
